@@ -113,6 +113,46 @@ button:focus-visible, a:focus-visible { outline: 2px solid #b3495f; outline-offs
 .help-text { margin-top: 12px; font-size: 13px; color: #a97b86; line-height: 1.8; }
 .help-text:empty { display: none; }
 
+/* 手机地图选择面板：与主内容并列，避免 section 的 transform 影响固定定位。 */
+body.map-picker-open { overflow: hidden; }
+.map-picker {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding-top: max(16px, env(safe-area-inset-top));
+  background: rgba(60, 32, 40, .45);
+}
+.map-sheet {
+  width: 100%; max-width: 520px; max-height: 100%; overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 24px 20px max(24px, env(safe-area-inset-bottom));
+  border-radius: 24px 24px 0 0; background: #fdf6f7;
+  box-shadow: 0 -8px 40px rgba(60, 32, 40, .12);
+}
+.map-sheet-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.map-sheet-header h2 { font-size: 20px; color: #b3495f; }
+.map-close {
+  flex-shrink: 0; width: 44px; height: 44px; border: 0; border-radius: 50%;
+  background: #f7e5e9; color: #b3495f; font-size: 28px; cursor: pointer;
+}
+.map-destination { margin-top: 8px; font-size: 14px; line-height: 1.8; }
+.wechat-map-help { margin-top: 12px; padding: 12px; border-radius: 12px; background: #f7e5e9; font-size: 13px; line-height: 1.8; }
+.map-options { display: grid; gap: 12px; margin-top: 20px; }
+.map-option { display: flex; align-items: center; gap: 12px; padding: 16px 12px; border-radius: 16px; background: #fff; }
+.map-logo {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 40px; height: 40px; border-radius: 12px; color: #fff; font-size: 18px;
+}
+.map-logo-amap { background: #397be7; }
+.map-logo-tencent { background: #2b9571; }
+.map-logo-baidu { background: #c94f6d; }
+.map-option-detail { flex: 1; min-width: 0; }
+.map-option-detail h3 { font-size: 16px; font-weight: 500; }
+.map-option-detail p { margin-top: 4px; font-size: 11px; color: #a97b86; line-height: 1.6; }
+.map-actions { display: grid; gap: 4px; flex-shrink: 0; text-align: center; }
+.map-app-link { padding: 10px 12px; border-radius: 24px; background: #c94f6d; color: #fff; text-decoration: none; font-size: 13px; }
+.map-web-link { padding: 8px; font-size: 12px; color: #b3495f; text-underline-offset: 3px; }
+.map-coordinate { margin-top: 8px; font-size: 11px; color: #a97b86; line-height: 1.8; text-align: center; }
+
 /* 相册 */
 .gallery {
   display: grid; grid-template-columns: 1fr 1fr; gap: 8px;

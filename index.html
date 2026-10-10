@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 腾讯 URI App 唤起需要腾讯位置服务开发者 Key；未配置时使用网页路线入口。 -->
+  <meta name="tencent-map-key" content="KJCBZ-KQZEJ-NEPFY-DHTY6-SAKYE-UUFYQ">
   <title>诚挚邀请 · 我们的婚礼</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -45,12 +47,13 @@
         <p class="info-label">时 间</p>
         <p class="info-value"><time id="weddingTime" datetime="2026-12-12T17:30:00+08:00">2026年12月12日 17:30</time></p>
         <p class="info-label">地 点</p>
-        <p id="weddingAddress" class="info-value">浙江省台州市三门县健跳镇七市村</p>
-        <!-- 使用同页 HTTPS 搜索入口；获得准确经纬度后可改为具体地点导航。 -->
+        <p id="weddingAddress" class="info-value">浙江省三门县七市村</p>
+          <!-- JavaScript 可用时打开选择面板；不可用时仍可打开精确坐标地图。 -->
         <a id="navigationLink" class="btn"
-           href="https://ditu.amap.com/search?query=%E5%BB%BF%E5%9B%9B%E7%AE%A9&city=110000&geoobj=116.394512%7C39.906173%7C116.401916%7C39.910001&zoom=17.5">一键导航</a>
+            href="https://uri.amap.com/navigation?to=121.658516,29.023338,%E5%A9%9A%E7%A4%BC%E5%9C%B0%E7%82%B9&amp;mode=car&amp;coordinate=gaode&amp;src=wedding-invitation&amp;callnative=1"
+            aria-haspopup="dialog" aria-controls="mapPicker" aria-expanded="false">一键导航</a>
         <button id="copyAddressBtn" class="text-btn" type="button">复制地址</button>
-        <p class="help-text">将在高德地图搜索上述地址，请确认具体宴席位置后开始导航。微信内打不开时，可复制地址到地图 App 搜索。</p>
+          <p class="help-text">选择手机已安装的地图，前往婚礼地点。微信内无法唤起时，可在浏览器中打开，或使用网页地图。</p>
         <p id="navigationStatus" class="help-text" role="status"></p>
       </div>
     </section>
@@ -84,6 +87,39 @@
       <p>Made with ♥</p>
     </footer>
   </main>
+
+  <div id="mapPicker" class="map-picker hidden" role="dialog" aria-modal="true"
+       aria-labelledby="mapPickerTitle" aria-describedby="mapPickerHelp" tabindex="-1">
+    <div class="map-sheet">
+      <div class="map-sheet-header">
+        <h2 id="mapPickerTitle">导航到婚礼现场</h2>
+        <button id="closeMapPicker" class="map-close" type="button" aria-label="关闭地图选择">×</button>
+      </div>
+      <p class="map-destination">浙江省三门县七市村</p>
+      <p id="mapPickerHelp" class="help-text">请选择已安装的地图。网页无法自动检测安装情况；未安装或被微信拦截时，请使用对应的网页地图。</p>
+      <p id="wechatMapHelp" class="wechat-map-help hidden">微信提示：若 App 没有打开，请点右上角“···”，选择“在浏览器中打开”，再选择地图。也可以直接查看下方网页地图。</p>
+      <div class="map-options">
+        <div class="map-option">
+          <span class="map-logo map-logo-amap" aria-hidden="true">高</span>
+          <div class="map-option-detail"><h3>高德地图</h3><p>GCJ-02 精确定位</p></div>
+          <div class="map-actions"><a id="amapAppLink" class="map-app-link" href="#">打开 App</a><a id="amapWebLink" class="map-web-link" href="#">网页地图</a></div>
+        </div>
+        <div class="map-option">
+          <span class="map-logo map-logo-tencent" aria-hidden="true">腾</span>
+          <div class="map-option-detail"><h3>腾讯地图</h3><p id="tencentMapNote">GCJ-02 精确定位</p></div>
+          <div class="map-actions"><a id="tencentAppLink" class="map-app-link" href="#">打开 App</a><a id="tencentWebLink" class="map-web-link" href="#">网页地图</a></div>
+        </div>
+        <div class="map-option">
+          <span class="map-logo map-logo-baidu" aria-hidden="true">百</span>
+          <div class="map-option-detail"><h3>百度地图</h3><p>BD-09 精确定位</p></div>
+          <div class="map-actions"><a id="baiduAppLink" class="map-app-link" href="#">打开 App</a><a id="baiduWebLink" class="map-web-link" href="#">网页地图</a></div>
+        </div>
+      </div>
+      <p id="mapLaunchStatus" class="help-text" role="status"></p>
+      <button id="copyMapLocationBtn" class="text-btn" type="button">复制地址和坐标</button>
+      <p class="map-coordinate">高德 / 腾讯：121.658516, 29.023338<br>百度：121.664964, 29.029492</p>
+    </div>
+  </div>
 
   <audio id="bgm" src="assets/bgm.mp3" loop preload="none"></audio>
 

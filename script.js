@@ -103,7 +103,137 @@ if ('IntersectionObserver' in window && !reduceMotion) {
   });
 }
 
-// 4. 微信等环境无法写入剪贴板时，提示用户手动复制，不阻止地图链接跳转。
+// 4. 地图坐标配置：经纬度保持命名明确，腾讯/百度 URI 的组合坐标是纬度在前。
+const weddingLocation = {
+  name: '婚礼地点 · 七市村',
+  gcj02: { lng: 121.658516, lat: 29.023338 },
+  bd09: { lng: 121.664964, lat: 29.029492 }
+};
+const userAgent = navigator.userAgent;
+const isWeChat = /MicroMessenger/i.test(userAgent);
+const isIOS = /iPad|iPhone|iPod/i.test(userAgent) ||
+  (/Macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1);
+const isMobile = isIOS || /Android|HarmonyOS/i.test(userAgent);
+const tencentMapKey = document.querySelector('meta[name="tencent-map-key"]').content.trim();
+const mapSource = 'wedding-invitation';
+
+function mapUrl(base, params) {
+  return `${base}?${new URLSearchParams(params).toString()}`;
+}
+
+function buildMapLinks() {
+  const { name, gcj02, bd09 } = weddingLocation;
+  const tencentParams = {
+    type: 'drive', to: name, tocoord: `${gcj02.lat},${gcj02.lng}`,
+    referer: tencentMapKey || mapSource
+  };
+  return {
+    amap: {
+      name: '高德地图',
+      app: mapUrl(`${isIOS ? 'iosamap' : 'androidamap'}://navi`, {
+        sourceApplication: mapSource, poiname: name,
+        lat: gcj02.lat, lon: gcj02.lng, dev: 0, style: 0
+      }),
+      web: mapUrl('https://uri.amap.com/navigation', {
+        to: `${gcj02.lng},${gcj02.lat},${name}`, mode: 'car',
+        coordinate: 'gaode', src: mapSource, callnative: 0
+      })
+    },
+    tencent: {
+      name: '腾讯地图',
+      // 官方 App URI 要求开发者 Key，不以应用名或示例 Key 冒充。
+      app: tencentMapKey ? mapUrl('qqmap://map/routeplan', {
+        ...tencentParams, fromcoord: 'CurrentLocation'
+      }) : null,
+      // Web URI 允许应用名作为 referer；省略起点，由移动端请求当前位置。
+      web: mapUrl('https://apis.map.qq.com/uri/v1/routeplan', {
+        ...tencentParams, coord_type: 2
+      })
+    },
+    baidu: {
+      name: '百度地图',
+      app: mapUrl('baidumap://map/direction', {
+        destination: `latlng:${bd09.lat},${bd09.lng}|name:${name}`,
+        mode: 'driving', coord_type: 'bd09ll', src: mapSource
+      }),
+      web: mapUrl('https://api.map.baidu.com/direction', {
+        origin: '我的位置', destination: `latlng:${bd09.lat},${bd09.lng}|name:${name}`,
+        mode: 'driving', coord_type: 'bd09ll', region: '台州市',
+        output: 'html', src: mapSource
+      })
+    }
+  };
+}
+
+const mapPicker = document.getElementById('mapPicker');
+const navigationLink = document.getElementById('navigationLink');
+const closeMapPicker = document.getElementById('closeMapPicker');
+const mapLaunchStatus = document.getElementById('mapLaunchStatus');
+const maps = buildMapLinks();
+
+Object.entries(maps).forEach(([id, map]) => {
+  const appLink = document.getElementById(`${id}AppLink`);
+  const webLink = document.getElementById(`${id}WebLink`);
+  const canAttemptApp = isMobile && Boolean(map.app);
+  appLink.href = canAttemptApp ? map.app : map.web;
+  appLink.textContent = canAttemptApp ? '打开 App' : '网页路线';
+  appLink.setAttribute('aria-label', `${map.name}${canAttemptApp ? '打开 App' : '网页路线'}`);
+  webLink.href = map.web;
+  webLink.setAttribute('aria-label', `${map.name}网页地图`);
+  appLink.addEventListener('click', () => {
+    // 保持原生链接在用户点击中直接跳转；不轮询安装情况，也不定时自动跳走。
+    mapLaunchStatus.textContent = canAttemptApp
+      ? `已尝试打开${map.name}。若未打开，请确认已安装该 App，或点击对应“网页地图”。${isWeChat ? '微信拦截时请在右上角选择“在浏览器中打开”。' : ''}`
+      : `正在打开${map.name}网页路线。`;
+  });
+});
+if (!tencentMapKey) {
+  document.getElementById('tencentMapNote').textContent = '网页路线 · 可在地图页面尝试打开 App';
+}
+if (isWeChat) document.getElementById('wechatMapHelp').classList.remove('hidden');
+
+function hideMapPicker() {
+  mapPicker.classList.add('hidden');
+  main.removeAttribute('inert');
+  main.removeAttribute('aria-hidden');
+  document.body.classList.remove('map-picker-open');
+  navigationLink.setAttribute('aria-expanded', 'false');
+  navigationLink.focus({ preventScroll: true });
+}
+
+navigationLink.addEventListener('click', event => {
+  event.preventDefault();
+  mapLaunchStatus.textContent = '';
+  mapPicker.classList.remove('hidden');
+  document.body.classList.add('map-picker-open');
+  navigationLink.setAttribute('aria-expanded', 'true');
+  closeMapPicker.focus({ preventScroll: true });
+  main.setAttribute('inert', '');
+  main.setAttribute('aria-hidden', 'true');
+});
+closeMapPicker.addEventListener('click', hideMapPicker);
+mapPicker.addEventListener('click', event => {
+  if (event.target === mapPicker) hideMapPicker();
+});
+mapPicker.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    hideMapPicker();
+  } else if (event.key === 'Tab') {
+    const focusable = [...mapPicker.querySelectorAll('button, a[href]')];
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+});
+
+// 5. 地址复制：剪贴板不可用时保留可长按选择的文本。
 document.getElementById('copyAddressBtn').addEventListener('click', async () => {
   const address = document.getElementById('weddingAddress').textContent.trim();
   const status = document.getElementById('navigationStatus');
@@ -115,7 +245,19 @@ document.getElementById('copyAddressBtn').addEventListener('click', async () => 
   }
 });
 
-// 5. 缺少照片时显示占位提示，而不是破损图片。
+document.getElementById('copyMapLocationBtn').addEventListener('click', async () => {
+  const address = document.getElementById('weddingAddress').textContent.trim();
+  const { gcj02, bd09 } = weddingLocation;
+  const text = `${address}\n高德/腾讯 GCJ-02：${gcj02.lng}, ${gcj02.lat}\n百度 BD-09：${bd09.lng}, ${bd09.lat}\n位置：${maps.amap.web}`;
+  try {
+    await navigator.clipboard.writeText(text);
+    mapLaunchStatus.textContent = '地址、两种坐标和地图链接已复制。';
+  } catch {
+    mapLaunchStatus.textContent = '无法自动复制，请长按面板中的地址或坐标手动复制。';
+  }
+});
+
+// 6. 缺少照片时显示占位提示，而不是破损图片。
 document.querySelectorAll('.gallery img').forEach(img => {
   function showPlaceholder() {
     img.classList.add('hidden');
