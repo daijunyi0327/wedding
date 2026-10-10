@@ -7,7 +7,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.hidden { display: none; }
+/* 隐藏工具类必须优先于 .cover 的 display: flex，否则透明遮罩仍会拦截点击。 */
+.hidden { display: none !important; }
 
 /* 开场遮罩 */
 .cover {
@@ -15,6 +16,7 @@ body {
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(160deg, #f7d9df, #fdf6f7 60%, #f3e2e6);
   text-align: center;
+  transition: opacity .6s;
 }
 .cover-inner { padding: 24px; }
 .cover-names {
@@ -35,13 +37,23 @@ body {
 
 /* 主内容 */
 .main { padding-bottom: 60px; }
+.main:focus { outline: none; }
+
+.music-btn {
+  position: fixed; top: max(16px, env(safe-area-inset-top)); right: 16px; z-index: 10;
+  padding: 10px 16px; border: 1px solid #c94f6d; border-radius: 24px;
+  background: #fff; color: #b3495f; font: inherit; font-size: 13px;
+  cursor: pointer;
+}
 
 .section {
   max-width: 520px;
   margin: 0 auto;
   padding: 48px 24px;
   text-align: center;
+  transition: opacity .8s, transform .8s;
 }
+.section.reveal-pending { opacity: 0; transform: translateY(30px); }
 .section h2 {
   font-size: 18px; letter-spacing: 4px; color: #b3495f;
   font-weight: 500; margin-bottom: 24px;
@@ -63,10 +75,10 @@ body {
 
 /* 倒计时 */
 .countdown {
-  display: flex; justify-content: center; gap: 16px;
+  display: flex; justify-content: center; gap: 12px;
 }
 .countdown > div {
-  min-width: 64px; padding: 12px 8px;
+  flex: 1; min-width: 0; max-width: 80px; padding: 12px 8px;
   background: #fff; border-radius: 12px;
   box-shadow: 0 4px 16px rgba(201,79,109,.08);
 }
@@ -86,24 +98,50 @@ body {
 .btn {
   display: inline-block; padding: 12px 32px;
   background: #c94f6d; color: #fff; border-radius: 30px;
+  border: 0; font-family: inherit; cursor: pointer;
   text-decoration: none; font-size: 15px; letter-spacing: 2px;
   transition: .3s;
 }
 .btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .6; cursor: not-allowed; }
+button:focus-visible, a:focus-visible { outline: 2px solid #b3495f; outline-offset: 4px; }
+.text-btn {
+  display: block; margin: 12px auto 0; padding: 8px 12px;
+  border: 0; background: transparent; color: #b3495f; font: inherit;
+  text-decoration: underline; text-underline-offset: 4px; cursor: pointer;
+}
+.help-text { margin-top: 12px; font-size: 13px; color: #a97b86; line-height: 1.8; }
+.help-text:empty { display: none; }
 
 /* 相册 */
 .gallery {
   display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
 }
-.gallery img {
-  width: 100%; aspect-ratio: 3/4; object-fit: cover;
-  border-radius: 12px; display: block;
+.gallery-photo {
+  display: grid; min-width: 0; aspect-ratio: 3/4;
+  border-radius: 12px; overflow: hidden; background: #f7e5e9;
 }
-.gallery img:first-child { grid-column: span 2; aspect-ratio: 4/3; }
+.gallery-photo:first-child { grid-column: span 2; aspect-ratio: 4/3; }
+.gallery img {
+  grid-area: 1 / 1; width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.gallery figcaption {
+  grid-area: 1 / 1; display: flex; align-items: center; justify-content: center;
+  padding: 24px; font-size: 14px; color: #a97b86;
+}
 
 .wish { font-size: 15px; color: #a97b86; line-height: 2; margin-bottom: 24px; }
 
 .footer {
   text-align: center; font-size: 12px; color: #d4b8bf;
   padding: 40px 0 20px;
+}
+
+@media (max-width: 360px) {
+  .cover-names { font-size: 24px; letter-spacing: 2px; }
+  .hero-title { font-size: 32px; letter-spacing: 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover, .section, .btn, .open-btn { transition: none; }
 }

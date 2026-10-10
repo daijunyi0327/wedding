@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>诚挚邀请 · 我们的婚礼</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -12,18 +12,20 @@
   <div id="cover" class="cover">
     <div class="cover-inner">
       <p class="cover-names">戴君义 & 杨雪纯</p>
-      <p class="cover-date">2026.10.10</p>
-      <button id="openBtn" class="open-btn">点击开启邀请函</button>
+      <p class="cover-date">2026.12.12</p>
+      <button id="openBtn" class="open-btn" type="button">点击开启邀请函</button>
     </div>
   </div>
 
   <!-- 主内容 -->
-  <main id="main" class="main hidden">
+  <main id="main" class="main hidden" tabindex="-1">
+    <button id="musicToggle" class="music-btn hidden" type="button" aria-pressed="false">播放音乐</button>
     <section class="section hero">
       <p class="hero-sub">我 们 结 婚 啦</p>
       <h1 class="hero-title">诚 挚 邀 请</h1>
       <p class="hero-names">戴君义 <span>&</span> 杨雪纯</p>
       <p class="hero-en">WE ARE GETTING MARRIED</p>
+      <p id="musicStatus" class="help-text hidden" role="status"></p>
     </section>
 
     <section class="section countdown-section">
@@ -34,34 +36,48 @@
         <div><span id="m">0</span><small>分</small></div>
         <div><span id="s">0</span><small>秒</small></div>
       </div>
+      <p id="countdownStatus" class="help-text" role="status"></p>
     </section>
 
     <section class="section">
       <h2>婚礼信息</h2>
       <div class="info-card">
         <p class="info-label">时 间</p>
-        <p class="info-value">2026年12月12日 17:30</p>
+        <p class="info-value"><time id="weddingTime" datetime="2026-12-12T17:30:00+08:00">2026年12月12日 17:30</time></p>
         <p class="info-label">地 点</p>
-        <p class="info-value">浙江省台州市三门县健跳镇七市村</p>
-        <a class="btn"
-           href="https://ditu.amap.com/search?query=%E5%BB%BF%E5%9B%9B%E7%AE%A9&city=110000&geoobj=116.394512%7C39.906173%7C116.401916%7C39.910001&zoom=17.5"
-           target="_blank" rel="noopener">一键导航</a>
+        <p id="weddingAddress" class="info-value">浙江省台州市三门县健跳镇七市村</p>
+        <!-- 使用同页 HTTPS 搜索入口；获得准确经纬度后可改为具体地点导航。 -->
+        <a id="navigationLink" class="btn"
+           href="https://ditu.amap.com/search?query=%E5%BB%BF%E5%9B%9B%E7%AE%A9&city=110000&geoobj=116.394512%7C39.906173%7C116.401916%7C39.910001&zoom=17.5">一键导航</a>
+        <button id="copyAddressBtn" class="text-btn" type="button">复制地址</button>
+        <p class="help-text">将在高德地图搜索上述地址，请确认具体宴席位置后开始导航。微信内打不开时，可复制地址到地图 App 搜索。</p>
+        <p id="navigationStatus" class="help-text" role="status"></p>
       </div>
     </section>
 
     <section class="section">
       <h2>我们的照片</h2>
       <div class="gallery">
-        <img src="assets/photo1.jpg" alt="" loading="lazy">
-        <img src="assets/photo2.jpg" alt="" loading="lazy">
-        <img src="assets/photo3.jpg" alt="" loading="lazy">
+        <figure class="gallery-photo">
+          <img src="assets/photo1.jpg" alt="新人合照（一）" loading="lazy">
+          <figcaption class="hidden">照片待添加</figcaption>
+        </figure>
+        <figure class="gallery-photo">
+          <img src="assets/photo2.jpg" alt="新人合照（二）" loading="lazy">
+          <figcaption class="hidden">照片待添加</figcaption>
+        </figure>
+        <figure class="gallery-photo">
+          <img src="assets/photo3.jpg" alt="新人合照（三）" loading="lazy">
+          <figcaption class="hidden">照片待添加</figcaption>
+        </figure>
       </div>
     </section>
 
     <section class="section">
       <h2>期待您的到来</h2>
       <p class="wish">您的祝福，是我们最好的礼物</p>
-      <a class="btn" href="tel:13800000000">电话联系新人</a>
+      <!-- 发布前替换为带真实号码的 tel: 链接，不使用示例号码。 -->
+      <button class="btn" type="button" disabled>联系方式待补充</button>
     </section>
 
     <footer class="footer">
@@ -69,7 +85,7 @@
     </footer>
   </main>
 
-  <audio id="bgm" src="assets/bgm.mp3" loop preload="auto"></audio>
+  <audio id="bgm" src="assets/bgm.mp3" loop preload="none"></audio>
 
   <script src="script.js"></script>
 </body>
