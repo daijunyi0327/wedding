@@ -47,13 +47,13 @@
         <p class="info-label">时 间</p>
         <p class="info-value"><time id="weddingTime" datetime="2026-12-12T17:30:00+08:00">2026年12月12日 17:30</time></p>
         <p class="info-label">地 点</p>
-        <p id="weddingAddress" class="info-value">浙江省三门县七市村</p>
-          <!-- JavaScript 可用时打开选择面板；不可用时仍可打开精确坐标地图。 -->
+        <p id="weddingAddress" class="info-value">浙江省三门县廿四箩</p>
+        <!-- 只展示指定坐标的目的地，不自动规划路线或开始导航。 -->
         <a id="navigationLink" class="btn"
-            href="https://uri.amap.com/navigation?to=121.658516,29.023338,%E5%A9%9A%E7%A4%BC%E5%9C%B0%E7%82%B9&amp;mode=car&amp;coordinate=gaode&amp;src=wedding-invitation&amp;callnative=1"
+            href="https://uri.amap.com/marker?position=121.658516,29.023338&amp;name=%E5%BB%BF%E5%9B%9B%E7%AE%A9&amp;coordinate=gaode&amp;src=wedding-invitation&amp;callnative=0"
             aria-haspopup="dialog" aria-controls="mapPicker" aria-expanded="false">一键导航</a>
         <button id="copyAddressBtn" class="text-btn" type="button">复制地址</button>
-          <p class="help-text">选择手机已安装的地图，前往婚礼地点。微信内无法唤起时，可在浏览器中打开，或使用网页地图。</p>
+        <p class="help-text">选择地图查看婚礼地点。微信内请使用网页地图，或在外部浏览器打开后唤起 App。</p>
         <p id="navigationStatus" class="help-text" role="status"></p>
       </div>
     </section>
@@ -92,12 +92,12 @@
        aria-labelledby="mapPickerTitle" aria-describedby="mapPickerHelp" tabindex="-1">
     <div class="map-sheet">
       <div class="map-sheet-header">
-        <h2 id="mapPickerTitle">导航到婚礼现场</h2>
+        <h2 id="mapPickerTitle">查看婚礼地点</h2>
         <button id="closeMapPicker" class="map-close" type="button" aria-label="关闭地图选择">×</button>
       </div>
-      <p class="map-destination">浙江省三门县七市村</p>
-      <p id="mapPickerHelp" class="help-text">请选择已安装的地图。网页无法自动检测安装情况；未安装或被微信拦截时，请使用对应的网页地图。</p>
-      <p id="wechatMapHelp" class="wechat-map-help hidden">微信提示：若 App 没有打开，请点右上角“···”，选择“在浏览器中打开”，再选择地图。也可以直接查看下方网页地图。</p>
+      <p class="map-destination">浙江省三门县廿四箩</p>
+      <p id="mapPickerHelp" class="help-text">只展示指定坐标的目的地，不直接进入导航。浏览器中可选择已安装的地图 App；网页无法自动检测安装情况。</p>
+      <p id="wechatMapHelp" class="wechat-map-help hidden" tabindex="-1">微信会限制地图 App 唤起，普通网页无法绕过。请点右上角“···”→“在浏览器中打开”，再点“一键导航”选择地图；或使用下方“网页地图”查看地点。</p>
       <div class="map-options">
         <div class="map-option">
           <span class="map-logo map-logo-amap" aria-hidden="true">高</span>
@@ -116,6 +116,7 @@
         </div>
       </div>
       <p id="mapLaunchStatus" class="help-text" role="status"></p>
+      <button id="copyInvitationLinkBtn" class="text-btn" type="button">复制邀请函链接到浏览器打开</button>
       <button id="copyMapLocationBtn" class="text-btn" type="button">复制地址和坐标</button>
       <p class="map-coordinate">高德 / 腾讯：121.658516, 29.023338<br>百度：121.664964, 29.029492</p>
     </div>

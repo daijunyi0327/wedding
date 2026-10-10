@@ -105,7 +105,7 @@ if ('IntersectionObserver' in window && !reduceMotion) {
 
 // 4. 地图坐标配置：经纬度保持命名明确，腾讯/百度 URI 的组合坐标是纬度在前。
 const weddingLocation = {
-  name: '婚礼地点 · 七市村',
+  name: document.getElementById('weddingAddress').textContent.trim(),
   gcj02: { lng: 121.658516, lat: 29.023338 },
   bd09: { lng: 121.664964, lat: 29.029492 }
 };
@@ -124,41 +124,39 @@ function mapUrl(base, params) {
 function buildMapLinks() {
   const { name, gcj02, bd09 } = weddingLocation;
   const tencentParams = {
-    type: 'drive', to: name, tocoord: `${gcj02.lat},${gcj02.lng}`,
+    marker: `coord:${gcj02.lat},${gcj02.lng};title:${name};addr:${name}`,
     referer: tencentMapKey || mapSource
   };
   return {
     amap: {
       name: '高德地图',
-      app: mapUrl(`${isIOS ? 'iosamap' : 'androidamap'}://navi`, {
+      app: mapUrl(`${isIOS ? 'iosamap' : 'androidamap'}://viewMap`, {
         sourceApplication: mapSource, poiname: name,
-        lat: gcj02.lat, lon: gcj02.lng, dev: 0, style: 0
+        lat: gcj02.lat, lon: gcj02.lng, dev: 0
       }),
-      web: mapUrl('https://uri.amap.com/navigation', {
-        to: `${gcj02.lng},${gcj02.lat},${name}`, mode: 'car',
+      web: mapUrl('https://uri.amap.com/marker', {
+        position: `${gcj02.lng},${gcj02.lat}`, name,
         coordinate: 'gaode', src: mapSource, callnative: 0
       })
     },
     tencent: {
       name: '腾讯地图',
       // 官方 App URI 要求开发者 Key，不以应用名或示例 Key 冒充。
-      app: tencentMapKey ? mapUrl('qqmap://map/routeplan', {
-        ...tencentParams, fromcoord: 'CurrentLocation'
-      }) : null,
-      // Web URI 允许应用名作为 referer；省略起点，由移动端请求当前位置。
-      web: mapUrl('https://apis.map.qq.com/uri/v1/routeplan', {
+      app: tencentMapKey ? mapUrl('qqmap://map/marker', tencentParams) : null,
+      // Web URI 允许应用名作为 referer；只展示地点，不请求起点或规划路线。
+      web: mapUrl('https://apis.map.qq.com/uri/v1/marker', {
         ...tencentParams, coord_type: 2
       })
     },
     baidu: {
       name: '百度地图',
-      app: mapUrl('baidumap://map/direction', {
-        destination: `latlng:${bd09.lat},${bd09.lng}|name:${name}`,
-        mode: 'driving', coord_type: 'bd09ll', src: mapSource
+      app: mapUrl('baidumap://map/marker', {
+        location: `${bd09.lat},${bd09.lng}`, title: name, content: name,
+        coord_type: 'bd09ll', src: mapSource
       }),
-      web: mapUrl('https://api.map.baidu.com/direction', {
-        origin: '我的位置', destination: `latlng:${bd09.lat},${bd09.lng}|name:${name}`,
-        mode: 'driving', coord_type: 'bd09ll', region: '台州市',
+      web: mapUrl('https://api.map.baidu.com/marker', {
+        location: `${bd09.lat},${bd09.lng}`, title: name, content: name,
+        coord_type: 'bd09ll',
         output: 'html', src: mapSource
       })
     }
@@ -174,21 +172,31 @@ const maps = buildMapLinks();
 Object.entries(maps).forEach(([id, map]) => {
   const appLink = document.getElementById(`${id}AppLink`);
   const webLink = document.getElementById(`${id}WebLink`);
-  const canAttemptApp = isMobile && Boolean(map.app);
+  const appAvailable = isMobile && Boolean(map.app);
+  const canAttemptApp = appAvailable && !isWeChat;
+  const actionLabel = isWeChat && appAvailable ? '如何打开 App' : canAttemptApp ? '打开 App' : '查看地点';
   appLink.href = canAttemptApp ? map.app : map.web;
-  appLink.textContent = canAttemptApp ? '打开 App' : '网页路线';
-  appLink.setAttribute('aria-label', `${map.name}${canAttemptApp ? '打开 App' : '网页路线'}`);
+  appLink.textContent = actionLabel;
+  appLink.setAttribute('aria-label', `${map.name}${actionLabel}`);
   webLink.href = map.web;
   webLink.setAttribute('aria-label', `${map.name}网页地图`);
-  appLink.addEventListener('click', () => {
+  appLink.addEventListener('click', event => {
+    if (isWeChat && appAvailable) {
+      event.preventDefault();
+      const help = document.getElementById('wechatMapHelp');
+      help.scrollIntoView({ block: 'nearest', behavior: reduceMotion ? 'auto' : 'smooth' });
+      help.focus({ preventScroll: true });
+      mapLaunchStatus.textContent = `微信内不能保证打开${map.name}。请点右上角“···”→“在浏览器中打开”，再点“一键导航”选择${map.name}；也可使用“网页地图”查看地点。`;
+      return;
+    }
     // 保持原生链接在用户点击中直接跳转；不轮询安装情况，也不定时自动跳走。
     mapLaunchStatus.textContent = canAttemptApp
-      ? `已尝试打开${map.name}。若未打开，请确认已安装该 App，或点击对应“网页地图”。${isWeChat ? '微信拦截时请在右上角选择“在浏览器中打开”。' : ''}`
-      : `正在打开${map.name}网页路线。`;
+      ? `已尝试在${map.name}中展示目的地，不会自动开始导航。若未打开，请确认已安装该 App，或点击对应“网页地图”。`
+      : `正在打开${map.name}网页地点。`;
   });
 });
 if (!tencentMapKey) {
-  document.getElementById('tencentMapNote').textContent = '网页路线 · 可在地图页面尝试打开 App';
+  document.getElementById('tencentMapNote').textContent = '网页地点 · App 入口需配置 Key';
 }
 if (isWeChat) document.getElementById('wechatMapHelp').classList.remove('hidden');
 
@@ -254,6 +262,20 @@ document.getElementById('copyMapLocationBtn').addEventListener('click', async ()
     mapLaunchStatus.textContent = '地址、两种坐标和地图链接已复制。';
   } catch {
     mapLaunchStatus.textContent = '无法自动复制，请长按面板中的地址或坐标手动复制。';
+  }
+});
+
+document.getElementById('copyInvitationLinkBtn').addEventListener('click', async () => {
+  const link = window.location.href;
+  if (!/^https?:/.test(link)) {
+    mapLaunchStatus.textContent = '当前是本地预览，请部署后在微信中使用实际 HTTPS 邀请函链接。';
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(link);
+    mapLaunchStatus.textContent = '邀请函链接已复制，可粘贴到 Safari 或手机浏览器打开，再选择地图 App。';
+  } catch {
+    mapLaunchStatus.textContent = '无法自动复制，请使用微信右上角“···”中的复制链接或在浏览器中打开。';
   }
 });
 
