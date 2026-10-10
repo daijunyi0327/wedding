@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>诚挚邀请 · 我们的婚礼</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 开场遮罩：必须用户点击才能播放音乐（微信限制） -->
+  <div id="cover" class="cover">
+    <div class="cover-inner">
+      <p class="cover-names">王小明 & 李小红</p>
+      <p class="cover-date">2026.10.10</p>
+      <button id="openBtn" class="open-btn">点击开启邀请函</button>
+    </div>
+  </div>
+
+  <!-- 主内容 -->
+  <main id="main" class="main hidden">
+    <section class="section hero">
+      <p class="hero-sub">我 们 结 婚 啦</p>
+      <h1 class="hero-title">诚 挚 邀 请</h1>
+      <p class="hero-names">王小明 <span>&</span> 李小红</p>
+      <p class="hero-en">WE ARE GETTING MARRIED</p>
+    </section>
+
+    <section class="section countdown-section">
+      <h2>婚礼倒计时</h2>
+      <div id="countdown" class="countdown">
+        <div><span id="d">0</span><small>天</small></div>
+        <div><span id="h">0</span><small>时</small></div>
+        <div><span id="m">0</span><small>分</small></div>
+        <div><span id="s">0</span><small>秒</small></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>婚礼信息</h2>
+      <div class="info-card">
+        <p class="info-label">时 间</p>
+        <p class="info-value">2026年10月10日 12:00</p>
+        <p class="info-label">地 点</p>
+        <p class="info-value">XX市 XX酒店 3楼宴会厅</p>
+        <a class="btn"
+           href="https://uri.amap.com/marker?position=116.397,39.908&name=婚礼地点"
+           target="_blank" rel="noopener">一键导航</a>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>我们的照片</h2>
+      <div class="gallery">
+        <img src="assets/photo1.jpg" alt="" loading="lazy">
+        <img src="assets/photo2.jpg" alt="" loading="lazy">
+        <img src="assets/photo3.jpg" alt="" loading="lazy">
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>期待您的到来</h2>
+      <p class="wish">您的祝福，是我们最好的礼物</p>
+      <a class="btn" href="tel:13800000000">电话联系新人</a>
+    </section>
+
+    <footer class="footer">
+      <p>Made with ♥</p>
+    </footer>
+  </main>
+
+  <audio id="bgm" src="assets/bgm.mp3" loop preload="auto"></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
